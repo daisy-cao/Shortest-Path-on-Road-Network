@@ -3,7 +3,7 @@
 
 #### First implement the CH method on a road network of city of Oldenburg. Able to compute the shortest distance between two nodes and also retrieve the nodes we pass.
 
-#### Folder 'ShortestPath' is the implementation for CH algorithm;<br/> Folder 'shortpath' is the implementation for algorith SILC.
+#### Folder 'ShortestPath' is the implementation for CH algorithm;<br/> Folder 'shortpath' is the implementation for algorith SILC;<br/> Folder 'ShortestPath' is the update for SILC algorithm.
 #### OL and medium is the dataset we currently testing. 
 
 ----------------------------------
