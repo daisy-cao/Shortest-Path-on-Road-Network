@@ -1,54 +1,130 @@
 package ShortestPath;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
+
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.*;
+import java.util.Random;
+import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
-        bidijstra a = new bidijstra();
-        Vertex vertex = new Vertex();
 
-        FileReader file = new FileReader("C:\\Users\\caoyu\\Desktop\\OL.txt");
-        BufferedReader bufferedReader = new BufferedReader(file);
-        String line = null;
+
+    public Vertex[] CHread(String fileName) throws Exception {
+        File file = new File(fileName);
+        Scanner sc = new Scanner(file);
         List<String> rawGraph = new ArrayList<>();
-
-        while((line = bufferedReader.readLine()) != null)
-        {
-            rawGraph.add(line);
-        }
-        Vertex[] graph = new Vertex[rawGraph.size()];
-        for(int i = 0; i < rawGraph.size(); i++) {
-            String[] temp = rawGraph.get(i).split(" ");
-            int loc = Integer.parseInt(temp[0]);
-            graph[loc] = new Vertex(loc);
-        }
-        for(int i = 0; i < rawGraph.size(); i++){
-            String[] temp = rawGraph.get(i).split(" ");
-            int start = Integer.parseInt(temp[1]);
-            int end = Integer.parseInt(temp[2]);
-            double dis = Double.parseDouble(temp[3]);
-            graph[start].outEdges.add(new edge(end, dis));
-            graph[end].inEdges.add(new edge(start, dis));
+        Vertex[] graph = new Vertex[17000];
+        while (sc.hasNext()) {
+            int tmp = sc.nextInt();
+            int start = sc.nextInt();
+            int end = sc.nextInt();
+            double dis = sc.nextDouble();
+            if (start < 17000 && end < 17000){
+                graph[start] = new Vertex(start);
+                graph[end] = new Vertex(end);
+                graph[start].outEdges.add(new edge(end, dis));
+                graph[end].inEdges.add(new edge(start, dis));
+            }
         }
 
 
 
-        bidijstra.PreProcess process = new bidijstra.PreProcess();
-        int[] nodeOrdering = process.processing(graph);
-//        for(int i = 0; i < nodeOrdering.length; i++) {
-//            System.out.println(nodeOrdering[i]);
-//        }
+        sc.close();
 
-        bidijstra.BidirectionalDijkstra bd = new bidijstra.BidirectionalDijkstra();
-        System.out.println("The shortest path is " + bd.computeDist(graph, 5804, 5817, nodeOrdering));
-        retrieve b = new retrieve();
-        System.out.println("The nodes we go through are : ");
-        b.retrieve(graph, 5804, 5817);
+        return graph;
+    }
+
+    public simBiDij.Vertex[] BiDiGraph(String fileName, int mode) throws Exception {
+        File file = new File(fileName);
+        Scanner sc = new Scanner(file);
+
+        List<String> rawGraph = new ArrayList<>();
+        simBiDij.Vertex[] graph = new simBiDij.Vertex[17000];
+        while (sc.hasNext()) {
+            int tmp = sc.nextInt();
+            int start = sc.nextInt();
+            int end = sc.nextInt();
+            double dis = sc.nextDouble();
+
+
+            if (start < 17000 && end < 17000) {
+                graph[start] = new simBiDij().new Vertex(start);
+                graph[end] = new simBiDij().new Vertex(end);
+                if (mode == 0) {
+                    graph[start].adjList.add(end);
+                    graph[start].costList.add(dis);
+                } else {
+                    graph[end].adjList.add(start);
+                    graph[end].costList.add(dis);
+                }
+            }
+        }
 
 
 
+        sc.close();
+
+
+        return graph;
+    }
+
+    public static void main(String[] args) throws Exception{
+
+//
+        String file = "D:\\cs\\graph\\CA.txt";
+//        FileWriter fw = new FileWriter("D:\\cs\\OLresults\\randomqueryCA1.txt");
+//        FileWriter fw2 = new FileWriter("D:\\cs\\OLresults\\runtimeCA1.txt");
+        try {
+            Main main = new Main();
+            CHMain CH = new CHMain();
+            simBiDij BI = new simBiDij();
+//            Vertex[] graph = main.CHread(file);
+//
+//
+//            for(int i = 0; i < 500; i++) {
+//                Random r = new Random();
+//                int random1 = r.nextInt(graph.length);
+//                int random2 = r.nextInt(graph.length);
+//
+//                double tmp = CH.CHCompute(graph, random1, random2, fw2);
+//                String newLine = System.getProperty("line.separator");
+//                if( tmp != -1 && tmp != 0) {
+//                    fw.write(random1 + " " + random2 + newLine);
+//
+//                }
+//
+//            }
+//            fw.close();
+//            fw2.close();
+
+            simBiDij.Vertex[] BIGraph = main.BiDiGraph(file, 0);
+            simBiDij.Vertex[] BIRevGraph = main.BiDiGraph(file, 1);
+            FileReader fr = new FileReader("D:\\cs\\OLresults\\randomquerycA1.txt");
+            BufferedReader bf = new BufferedReader(fr);
+            String line = null;
+            FileWriter fw3 = new FileWriter("D:\\cs\\OLresults\\runtimeBiNA2.txt");
+            String newLine = System.getProperty("line.separator");
+            while ((line = bf.readLine()) != null) {
+                String[] temp = line.split(" ");
+                long startTimebi = System.nanoTime();
+                BI.computeBiDi(BIGraph, BIRevGraph, Integer.parseInt(temp[0]), Integer.parseInt(temp[1]));
+                long endTimebi = System.nanoTime();
+                long totalTimebi = endTimebi - startTimebi;
+
+                fw3.write(totalTimebi + newLine);
+
+            }
+            fw3.close();
+            long memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+            System.out.println(memory);
+        } catch (Exception e) {
+            System.out.print(e);
+        }
     }
 }
+
